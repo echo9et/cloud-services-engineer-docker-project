@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8081"
+  frontend_builder:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_builder
+    volumes:
+      - frontend-dist:/app/dist
+
+  gateway:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "80:80"
+    volumes:
+      - frontend-dist:/usr/share/nginx/html/momo-store 
+    depends_on:
+      frontend_builder:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started 
+
+volumes:
+  frontend-dist:
